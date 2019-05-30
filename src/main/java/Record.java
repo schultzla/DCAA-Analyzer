@@ -5,13 +5,12 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 
 public class Record {
 
-    DateTime dateSubmitted, dateJob, dst;
+    DateTime dateSubmitted, dateJob;
 
     @ExcelRow
     private int rowIndex;
@@ -21,6 +20,12 @@ public class Record {
 
     @ExcelCell(6)
     String username;
+
+    @ExcelCell(7)
+    String firstName;
+
+    @ExcelCell(8)
+    String lastName;
 
     @ExcelCell(9)
     private String job;
@@ -42,19 +47,18 @@ public class Record {
     public boolean compareDates() {
         DateTimeFormatter submitSdf = DateTimeFormat.forPattern("MM/dd/yy HH:mm").withZone(DateTimeZone.forID("America/New_York"));
         DateTimeFormatter jobSdf = DateTimeFormat.forPattern("MM/dd/yy").withZone(DateTimeZone.forID("America/New_York"));
-        DateTimeFormatter dstSdf = DateTimeFormat.forPattern("MM/dd/yy").withZone(DateTimeZone.forID("America/New_York"));
-
 
         dateSubmitted = new DateTime(submitSdf.parseDateTime(this.submit));
         dateJob = new DateTime(jobSdf.parseDateTime(this.job));
-        dst = new DateTime(dstSdf.parseDateTime("3/10/19"));
+
+        DateTimeZone zone = DateTimeZone.forID("America/New_York");
 
         dateJob = dateJob.plusDays(1);
 
-        if (dateJob.isAfter(dst)) {
-            dateJob = dateJob.plusHours(12);
-        } else {
+        if (zone.isStandardOffset(dateJob.getMillis())) {
             dateJob = dateJob.plusHours(13);
+        } else {
+            dateJob = dateJob.plusHours(12);
         }
         dateJob = dateJob.plusMinutes(59);
 
