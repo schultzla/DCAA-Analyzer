@@ -1,3 +1,5 @@
+import com.poiji.exception.InvalidExcelFileExtension;
+
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -43,7 +45,11 @@ public class Driver {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         setMinLates.addActionListener((ActionEvent e) -> {
-            minLates = Integer.valueOf(JOptionPane.showInputDialog("Enter the minimum amount of late entries someone needs to be displayed"));
+            try {
+                minLates = Integer.valueOf(JOptionPane.showInputDialog("Enter the minimum amount of late entries someone needs to be displayed"));
+            } catch (Exception ex) {
+                minLates = 0;
+            }
         });
 
         chooseFile.addActionListener((ActionEvent e) -> {
@@ -58,14 +64,21 @@ public class Driver {
         calculateLateDays.addActionListener((ActionEvent e) -> {
             if (path != null) {
                 data.setText("");
-                Analyzer analyzer = new Analyzer(path);
+                Analyzer analyzer = null;
+
+                try {
+                    analyzer = new Analyzer(path);
+                } catch (InvalidExcelFileExtension ex) {
+                    JOptionPane.showMessageDialog(middlePanel, "Invalid file, must be .xlsx or .xls", "Wrong File Type", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 for (String s : analyzer.employeeLateCounts.keySet()) {
                     if (analyzer.employeeLateCounts.get(s) >= minLates) {
                         Record temp = analyzer.getRecord(s);
                         String name = temp.firstName + " " + temp.lastName;
                         int avg = (int) Math.ceil((analyzer.employeeLateCounts.get(s) / analyzer.totalAttempts.get(s) * 100));
 
-                        data.append("Employee: " + name + ", Late Entries: " + analyzer.employeeLateCounts.get(s) + " Late " + avg + "% of the time");
+                        data.append("Employee: " + name + ", Late Entries: " + analyzer.employeeLateCounts.get(s) + ", Late " + avg + "% of the time");
                         data.append("\n");
                     }
                 }
