@@ -28,6 +28,8 @@ public class Driver {
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
                 path = selectedFile.getAbsolutePath();
+            } else if (returnValue == JFileChooser.CANCEL_OPTION) {
+                System.exit(0);
             }
         }
 
@@ -55,6 +57,8 @@ public class Driver {
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
                     path = selectedFile.getAbsolutePath();
+                } else if (returnValue == JFileChooser.CANCEL_OPTION) {
+                    System.exit(0);
                 }
             }
         }
