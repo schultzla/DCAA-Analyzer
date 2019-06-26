@@ -3,6 +3,7 @@ import com.poiji.exception.InvalidExcelFileExtension;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -17,6 +18,18 @@ public class Driver {
     static HashSet<String> defaultCodes = new HashSet<>(), codes = new HashSet<>();
 
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
         defaultCodes = new HashSet<String>(Arrays.asList(new String[]{"Vacation", "Holiday", "Sick", "Leave without Pay", "Ownership Vacation"}));
 
         /*
@@ -24,6 +37,8 @@ public class Driver {
          */
         while (path == null) {
             JFileChooser fileChooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files", "xlsx", "xlx");
+            fileChooser.setFileFilter(filter);
             int returnValue = fileChooser.showOpenDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
@@ -53,6 +68,8 @@ public class Driver {
             } catch (InvalidExcelFileExtension ex) {
                 JOptionPane.showMessageDialog(middlePanel, "Invalid file, must be .xlsx or xlx");
                 JFileChooser fileChooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files", "xlsx", "xlx");
+                fileChooser.setFileFilter(filter);
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
