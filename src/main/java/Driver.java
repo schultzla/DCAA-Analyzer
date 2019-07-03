@@ -1,13 +1,18 @@
 import com.poiji.exception.InvalidExcelFileExtension;
+import sun.java2d.pipe.SpanShapeRenderer;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 public class Driver {
 
@@ -30,7 +35,7 @@ public class Driver {
             e.printStackTrace();
         }
 
-        defaultCodes = new HashSet<String>(Arrays.asList(new String[]{"Vacation", "Holiday", "Sick", "Leave without Pay", "Ownership Vacation"}));
+        defaultCodes = new HashSet<String>(Arrays.asList(new String[]{"Vacation", "Holiday", "Sick", "Leave without Pay", "Ownership Vacation", "Jury Duty", "Bereavement"}));
 
         /*
          * Display file chooser on launch, don't close until file chosen
@@ -42,7 +47,7 @@ public class Driver {
             int returnValue = fileChooser.showOpenDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
-                path = selectedFile.getAbsolutePath();
+                path = selectedFile.getName();
             } else if (returnValue == JFileChooser.CANCEL_OPTION) {
                 System.exit(0);
             }
@@ -73,7 +78,7 @@ public class Driver {
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-                    path = selectedFile.getAbsolutePath();
+                    path = selectedFile.getName();
                 } else if (returnValue == JFileChooser.CANCEL_OPTION) {
                     System.exit(0);
                 }
@@ -84,10 +89,11 @@ public class Driver {
         /*
          * Scrollable data area
          */
-        JTextArea data = new JTextArea (16, 45);
+        JTextArea data = new JTextArea (16, 50);
         data.setEditable (false);
         JScrollPane scroll = new JScrollPane(data);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         /*
          * Buttons
@@ -97,9 +103,15 @@ public class Driver {
         JButton configure = new JButton("Configure");
         JButton addFilters = new JButton("Jobcode Filter");
         JButton saveFilters = new JButton("Save");
+        JButton copyClip = new JButton("Copy to Clipboard");
+
+        copyClip.setPreferredSize(new Dimension(120, 23));
+        calculateLateDays.setPreferredSize(new Dimension(120, 23));
+        configure.setPreferredSize(new Dimension(120, 23));
 
         btmPanel.add(calculateLateDays);
         btmPanel.add(configure);
+        btmPanel.add(copyClip);
 
         middlePanel.add (scroll);
 
@@ -175,6 +187,13 @@ public class Driver {
         /*
          * Button actions
          */
+
+        copyClip.addActionListener((ActionEvent e) -> {
+            StringSelection selection = new StringSelection(data.getText());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(selection, selection);
+        });
+
         setMinLates.addActionListener((ActionEvent e) -> {
             try {
                 minLates = Integer.valueOf(JOptionPane.showInputDialog("Enter the minimum amount of late entries someone needs to be displayed"));
@@ -210,6 +229,13 @@ public class Driver {
         calculateLateDays.addActionListener((ActionEvent e) -> {
             data.setText("");
             analyzer.analyze(codes);
+
+            data.append("File Name: " + path + "\n");
+            SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+            Date date = new Date();
+            data.append("Date Ran: " + df.format(date) + "\n");
+            data.append("Minimum Late: " + minLates + "\n");
+            data.append("==========\n");
 
             for (String s : analyzer.employeeLateCounts.keySet()) {
                 if (analyzer.employeeLateCounts.get(s) >= minLates) {
