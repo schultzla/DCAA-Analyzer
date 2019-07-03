@@ -1,6 +1,4 @@
 import com.poiji.exception.InvalidExcelFileExtension;
-import sun.java2d.pipe.SpanShapeRenderer;
-
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -17,6 +15,7 @@ import java.util.HashSet;
 public class Driver {
 
     static String path;
+    static String fileName;
     static int minLates = 0;
     static Analyzer analyzer;
     static JCheckBox[] boxes;
@@ -47,7 +46,8 @@ public class Driver {
             int returnValue = fileChooser.showOpenDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
-                path = selectedFile.getName();
+                fileName = selectedFile.getName();
+                path = selectedFile.getAbsolutePath();
             } else if (returnValue == JFileChooser.CANCEL_OPTION) {
                 System.exit(0);
             }
@@ -78,7 +78,7 @@ public class Driver {
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-                    path = selectedFile.getName();
+                    path = selectedFile.getAbsolutePath();
                 } else if (returnValue == JFileChooser.CANCEL_OPTION) {
                     System.exit(0);
                 }
@@ -230,7 +230,7 @@ public class Driver {
             data.setText("");
             analyzer.analyze(codes);
 
-            data.append("File Name: " + path + "\n");
+            data.append("File Name: " + fileName + "\n");
             SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
             Date date = new Date();
             data.append("Date Ran: " + df.format(date) + "\n");
